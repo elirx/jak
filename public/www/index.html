@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, minimal-ui">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+<link rel="apple-touch-startup-image" href="images/apple-touch-startup-image-640x920.png">
+<title>blix - mobile template</title>
+<link rel="stylesheet" href="css/swiper.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="bootstrap-rtl.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,900" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="http://www.fontstatic.com/f=jazeera" />
+<style>
+  /* Always set the map height explicitly to define the size of the div
+   * element that contains the map. */
+  #map {
+	height: 100%;
+  }
+  /* Optional: Makes the sample page fill the window. */
+  html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+  }
+#myDiv {
+    display: none;
+}
+</style>
+</head>
+<style>
+body {
+  font-family:'jazeera';
+}
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .navbar-brand {
+
+  font-family: "jazeera";
+
+}
+</style>
+<body id="mobile_wrap">
+
+    <div class="panel-overlay"></div>
+
+    <div class="panel panel-right panel-reveal">
+        <div class="user_login_info">
+            <div class="user_thumb">
+                <img src="images/page_photoo.png" alt="" title="" />
+                <div class="user_details">
+                    <p>مسعف <span>عبدالله أحمد عسيري</span></p>
+                </div>
+                <div class="user_avatar"><img src="images/user.png" alt="" title="" /></div>
+            </div>
+            <nav class="user-nav">
+                <ul>
+                    <li><a href="features.html"><img src="images/icons/white/settings.png" alt="" title="" /><span>الإعدادات</span></a></li>
+                    <li><a href="features.html"><img src="images/icons/white/briefcase.png" alt="" title="" /><span>الاعمال</span><strong>5</strong></a></li>
+                    <li><a href="index.html"><img src="images/icons/white/lock.png" alt="" title="" /><span>تسجيل الخروج</span></a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="views">
+        <div class="view view-main">
+            <div class="pages">
+                <div data-page="index" class="page homepage" style="background-color: #ffffff;">
+                    <div class="page-content">
+                        <div class="navbarpages navbarpagesbg">
+                            <div class="navbar_left">
+                                <div class="logo_text"><a href="index.html"><img src="images/21.png" alt="" title="" style="width: 40%; margin-top: -15px;"/></a></div>
+                            </div>
+                            <div class="navbar_right">
+                                <a href="#" data-panel="right" class="open-panel"><img src="images/icons/white/user.png" alt="" title="" /></a>
+                            </div>
+                        </div>
+                        <div id="map"></div>
+                        <div id="myDiv" class="swiper-container-toolbar swiper-toolbar">
+                            <div class="swiper-pagination-toolbar"></div>
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide toolbar-icon" style="width: 406px; margin-right: 1px; margin-top: 200px;">
+                                    <a id="reject" style="margin-left:13%"><img src="images/icons/blue/reject.png" alt="" title="" /><span>رفض</span></a>
+                                    <a id="accept" style="margin-left:2%"><img src="images/icons/blue/accept.png" alt="" title="" /><span>موافقة</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+      var map;
+      function initMap() {
+        var myLatLng = {lat: 21.422510, lng: 39.826168};
+        var myLatLng2 = {lat: 21.422310, lng: 39.826128};
+
+		var directionsService = new google.maps.DirectionsService();
+        var directionsDisplay = new google.maps.DirectionsRenderer();
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 15,
+          center: myLatLng
+        });
+
+		directionsDisplay.setMap(map);
+
+		function Route(a, b, c, d) {
+
+            var start = new google.maps.LatLng(b, a);
+            var end = new google.maps.LatLng(c, d);
+            var request = {
+                origin:start,
+                destination:end,
+                travelMode: google.maps.TravelMode.WALKING
+             };
+             directionsService.route(request, function(result, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+              directionsDisplay.setDirections(result);
+            }
+            });
+        }
+        
+        $("#accept").click(function(){
+            var idID = '';
+            $.post( "http://localhost/reports/data", { status: 'accepted'  })
+                .done(function( data ) {
+                Route(data.long_from, data.lat_from, data.long_to, data.lat_to);
+                $("#myDiv").hide();
+                idID = data;
+              });
+        });
+          
+        $("#reject").click(function(){
+            var idID = '';
+            $.post( "http://localhost/reports/data", { status: 'rejected'  })
+                .done(function( data ) {
+                $("#myDiv").hide();
+                idID = data;
+                var c = setInterval(function(){
+			$.get( "http://localhost/reports/create", { id: 0 } )
+			  .done(function( data ) {
+				  if(data.status == 'none'){
+					  $("#myDiv").show();
+                      clearInterval(c);
+                  }
+            });
+        }, 2000);
+              });
+        });
+
+		var c = setInterval(function(){
+			$.get( "http://localhost/reports/create", { id: 0 } )
+			  .done(function( data ) {
+				  if(data.status == 'none'){
+					  $("#myDiv").show();
+                      clearInterval(c);
+                  }
+            });
+        }, 2000);
+          
+          var c = setInterval(function(){
+			$.get( "http://localhost/reports/create", { id: 0 } )
+			  .done(function( data ) {
+				  if(data.status == 'accepted'){
+					  $("#myDiv").hide();
+                      Route(data.long_from, data.lat_from, data.long_to, data.lat_to);
+                      clearInterval(c);
+                  }
+            });
+        }, 2000);
+
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCn77UVHKscWuVp5TcOmUB6gqMfAEfe7z8&callback=initMap"
+    async defer></script>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/jquery.validate.min.js" ></script>
+    <script src="js/swiper.min.js"></script>
+    <script src="js/jquery.custom.js"></script>
+    <script type="text/javascript"></script>
+</body>
+</html>
